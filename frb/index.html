@@ -1,0 +1,141 @@
+<html>
+<head>
+ <title>Firebase Realtime Database Web</title>
+
+<script src="https://www.gstatic.com/firebasejs/5.0.2/firebase.js"></script>
+<script>
+  // Initialize Firebase
+  var config = {
+    apiKey: "AIzaSyDzlRK85w1z1N6R1nHaydvalt7WCCoeYTE",
+    authDomain: "gotour-541da.firebaseapp.com",
+    databaseURL: "https://gotour-541da.firebaseio.com",
+    projectId: "gotour-541da",
+    storageBucket: "",
+    messagingSenderId: "133235614331"
+  };
+  firebase.initializeApp(config);
+</script>
+</head>
+<body>
+ <table>
+  <tr>
+   <td>Id: </td>
+   <td><input type="text" name="id" id="user_id" /></td>
+  </tr>
+  <tr>
+   <td>User Name: </td>
+   <td><input type="text" name="user_name" id="user_name" /></td>
+  </tr>
+  <tr>
+   <td colspan="2">
+    <input type="button" value="Save" onclick="save_user();" />
+    <input type="button" value="Update" onclick="update_user();" />
+    <input type="button" value="Delete" onclick="delete_user();" />
+   </td>
+  </tr>
+ </table>
+ 
+ <h3>Users List</h3>
+ 
+ <table id="tbl_users_list" border="1">
+  <tr>
+   <td>#ID</td>
+   <td>NAME</td>
+  </tr>
+ </table>
+ 
+ <script>
+ 
+  var ids = 1;
+  var tblUsers = document.getElementById('tbl_users_list');
+  var inc = 1;
+  //var databaseRef = firebase.database().ref('users/'+ids+'/');
+
+  var databaseRef = firebase.database().ref('users/');
+  var databaseRe = firebase.database().ref('users/user_id/').equalTo('1').once('value').then(function(snapshot){
+  var usernames = snapshot.val();
+ // console.log(usernames);
+  });
+
+
+  var rowIndex = 1;
+  databaseRef.once('value', function(snapshot) {
+  
+  snapshot.forEach(function(childSnapshot) {
+   var childKey = childSnapshot.key;
+   var childData = childSnapshot.val();
+   if(inc == 1){
+    console.log('User ID : '+childSnapshot.val());
+   }
+   if(inc == 2){
+    console.log('User Name : '+childSnapshot.val());
+   }
+   var row = tblUsers.insertRow(rowIndex);
+   var cellId = row.insertCell(0);
+   var cellName = row.insertCell(1);
+   cellId.appendChild(document.createTextNode(childKey));
+   cellName.appendChild(document.createTextNode(childData.user_name));
+   
+   //firebase.database().ref('users/')
+
+   rowIndex = rowIndex + 1;
+   inc++;
+    });
+  });
+   
+   /////////////////////////////////////
+  function save_user(){
+   var user_name = document.getElementById('user_name').value;
+  var uid = document.getElementById('user_id').value;
+  
+  // var uid = firebase.database().ref().child('users').push().key;
+   
+   var data = {
+    user_id: uid,
+    user_name: user_name
+   }
+   
+   var updates = {};
+   updates['/users/' + uid] = data;
+   firebase.database().ref().update(updates);
+   
+   alert('The user is created successfully!');
+   reload_page();
+  }
+  
+  function update_user(){
+   var user_name = document.getElementById('user_name').value;
+   var user_id = document.getElementById('user_id').value;
+
+   var data = {
+    user_id: user_id,
+    user_name: user_name
+   }
+   
+   var updates = {};
+   updates['/users/' + user_id] = data;
+   firebase.database().ref().update(updates);
+   
+   alert('The user is updated successfully!');
+   
+   reload_page();
+  }
+  
+  function delete_user(){
+   var user_id = document.getElementById('user_id').value;
+  
+   firebase.database().ref().child('/users/' + user_id).remove();
+   alert('The user is deleted successfully!');
+   reload_page();
+  }
+  
+  function reload_page(){
+   window.location.reload();
+  }
+  
+  ////////////////////////////
+
+ </script>
+ 
+</body>
+</html>
